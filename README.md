@@ -1,33 +1,115 @@
-AI Virtual Teaching Assistant
-A full-stack MERN-based AI-powered virtual teaching assistant designed to enhance the educational experience by providing immediate, accurate, and context-aware responses to student queries. This project leverages Google Jules for autonomous code generation and integration, making development fast and efficient.
+📚 Local AI Teaching Assistant (RAG-based)
 
-Motivation
-Traditional online learning platforms often struggle with student engagement and personalized feedback. This project aims to bridge that gap by building an intelligent assistant that can answer questions, provide feedback, generate quizzes, and support both students and teachers in real-time.
+A privacy-first, fully local AI Teaching Assistant built using Retrieval-Augmented Generation (RAG) that allows users to upload academic PDFs and ask syllabus-based questions.
+The system runs entirely on a local machine without any cloud dependency.
 
-Features
-AI-Powered Responses: Context-aware answers using advanced NLP and AI models.
+🚀 Why this project?
 
-Automated Login & Real-time Data: Secure authentication and live data collection.
+Most AI chatbots:
+Depend on cloud APIs
+Do not use user-provided study material
+May generate hallucinated answers
+Raise data privacy concerns
 
-Quiz Generation: AI-generated quizzes based on course content.
+👉 This project solves all of that by building a local, document-grounded AI system suitable for education.
 
-Feedback System: Personalized feedback for assignments and quizzes.
+🧠 Key Features
 
-Chat History: Track and review previous interactions.
+📄 Upload academic PDF documents
+🔍 Semantic search over documents using vector embeddings
+🤖 Accurate answers using Retrieval-Augmented Generation (RAG)
+🔁 Dual-mode system:
+ RAG Mode → syllabus-based answers from PDF
+ Normal AI Mode → general AI conversation
+🔐 Fully local & privacy-preserving (no cloud APIs)
+⚡ Fast response using local vector DB & LLM
 
-Voice Input (Optional): Support for voice commands using Web Speech API.
+🏗️ System Architecture (High Level)
 
-Customizable Assistant: Personalize the assistant’s name and avatar.
+PDF Upload
+   ↓
+Text Extraction (pdf-parse)
+   ↓
+Chunking + Embeddings (384-dim)
+   ↓
+Vector Storage (Qdrant)
+   ↓
+Similarity Search (Top-K)
+   ↓
+LLM Generation (Ollama + Qwen2.5)
+   ↓
+Final Answer
 
-Tech Stack
-Frontend: React.js (Vite)
+🛠️ Tech Stack
+Frontend
+React.js
+Vite
+Axios
 
-Backend: Node.js + Express.js
+Backend
+Node.js
+Express.js
+Multer (file upload)
+pdf-parse (PDF text extraction)
 
-Database: MongoDB Atlas
+AI & Data
+Ollama (Local LLM runtime)
+Qwen2.5 model
+Qdrant (Vector Database)
+Embeddings (384 dimensions)
 
-Authentication: JWT + bcrypt.js
+DevOps
+Docker & Docker Compose
 
-AI Integration: Google Jules (for code generation and automation)
+🧩 Core Concepts Used
 
-Deployment: Render (free tier)
+Retrieval-Augmented Generation (RAG)
+Vector Embeddings & Semantic Search
+Chunking with overlap
+REST API design
+Dual-mode AI architecture
+Local LLM inference
+Vector database indexing
+
+📦 How to Run Locally
+
+1️⃣ Start Qdrant (Vector DB)
+docker compose up -d
+
+2️⃣ Start Ollama & Pull Model
+ollama pull qwen2.5:1.5b-instruct
+ollama serve
+
+3️⃣ Start Backend
+cd backend
+node server.js
+
+4️⃣ Start Frontend
+cd frontend
+npm install
+npm run dev
+
+🎯 What Makes This Project Special?
+
+❌ No OpenAI / cloud API
+✅ Complete control over data
+✅ Real-world RAG implementation
+✅ Recruiter-friendly AI system
+✅ Works on low-resource machines (8GB RAM)
+
+This project demonstrates practical understanding of modern AI systems, not just model usage.
+
+📈 Future Improvements
+Voice-based interaction
+Multi-language support
+OCR for scanned PDFs
+User profiles & learning analytics
+Quiz & MCQ generation
+
+👨‍💻 Author
+
+Amit
+Final Year Computer Science Student
+Interested in AI Engineering, Backend Development, and System Design
+
+📌 Built as an academic project with real-world AI architecture principles.
