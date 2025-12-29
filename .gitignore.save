@@ -1,0 +1,20 @@
+# node
+node_modules/
+npm-debug.log
+
+# env
+.env
+
+# build
+dist/
+build/
+
+# mac
+.DS_Store
+
+# uploads (optional)
+uploads/
+
+# qdrant data
+qdrant_storage/
+
