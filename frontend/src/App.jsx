@@ -1,213 +1,170 @@
-// frontend/src/App.jsx
 import { useState } from "react";
 import { api } from "./api";
 
 export default function App() {
   const [files, setFiles] = useState([]);
-  const [q, setQ] = useState("");
+  const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [contexts, setContexts] = useState([]);
+  const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("rag"); // "rag" | "normal"
+  const [mode, setMode] = useState("rag");
 
-  // UPLOAD + INGEST PDFs
   const ingest = async () => {
+    if (!files.length) return alert("Kam se kam ek PDF select karo");
     try {
-      if (!files?.length) {
-        alert("Please select at least one PDF.");
-        return;
-      }
       const form = new FormData();
-      for (const f of files) form.append("files", f);
+      files.forEach((f) => form.append("files", f));
       const { data } = await api.post("/ingest", form);
-      alert(`Ingested chunks: ${data.chunks_added}`);
-    } catch (err) {
-      console.error("INGEST ERROR:", err);
-      alert("Ingest failed: " + (err?.response?.data?.error || err.message));
+      alert(`Ingested ${data.chunks_added} chunks`);
+    } catch {
+      alert("Ingest failed");
     }
   };
 
-  // ASK QUESTION (RAG / NORMAL mode)
   const ask = async () => {
+    if (!question.trim()) return alert("Question likho");
     try {
-      if (!q.trim()) {
-        alert("Please type a question.");
-        return;
-      }
-
       setLoading(true);
       setAnswer("");
-      setContexts([]);
-
-      const { data } = await api.post("/chat", { q, mode });
-
+      setSources([]);
+      const { data } = await api.post("/chat", { q: question, mode });
       setAnswer(data.answer || "(no answer)");
-      setContexts(data.contexts || []);
-    } catch (err) {
-      console.error("ASK ERROR:", err);
-      alert("Ask failed: " + (err?.response?.data?.error || err.message));
+      setSources(data.contexts || []);
+    } catch {
+      alert("Ask failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 820,
-        margin: "32px auto",
-        padding: "0 16px",
-        fontFamily: "Inter, system-ui, sans-serif",
-        color: "#e6e6e6",
-      }}
-    >
-      <h1 style={{ marginBottom: 8 }}>🎓 AI Teaching Assistant (Local)</h1>
-      <p style={{ opacity: 0.8, marginTop: 0 }}>
-        Switch between <b>Normal AI</b> and <b>RAG (PDF-based)</b> answering.
-      </p>
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 text-gray-900">
+      {/* NAV */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 className="font-bold text-lg flex items-center gap-2">
+            🐼 Panda AI
+            <span className="text-sm font-normal text-gray-500">
+              Teaching Assistant
+            </span>
+          </h1>
+          <div className="flex gap-2 text-sm">
+            <button
+              onClick={() => setMode("rag")}
+              className={`px-3 py-1.5 rounded-full ${
+                mode === "rag"
+                  ? "bg-black text-white"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              RAG
+            </button>
+            <button
+              onClick={() => setMode("normal")}
+              className={`px-3 py-1.5 rounded-full ${
+                mode === "normal"
+                  ? "bg-black text-white"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              Normal
+            </button>
+          </div>
+        </div>
+      </nav>
 
-      {/* MODE SELECTOR */}
-      <section style={{ marginTop: 20 }}>
-        <h3>Mode</h3>
-
-        <label style={{ marginRight: 20 }}>
-          <input
-            type="radio"
-            name="mode"
-            checked={mode === "rag"}
-            onChange={() => setMode("rag")}
-          />{" "}
-          <b>RAG Mode</b> (Use PDF context)
-        </label>
-
-        <label>
-          <input
-            type="radio"
-            name="mode"
-            checked={mode === "normal"}
-            onChange={() => setMode("normal")}
-          />{" "}
-          <b>Normal AI</b> (ChatGPT style)
-        </label>
-      </section>
-
-      {/* PDF UPLOAD */}
-      <section style={{ marginTop: 28 }}>
-        <h3>1) Upload PDFs</h3>
-        <input
-          type="file"
-          multiple
-          accept="application/pdf"
-          onChange={(e) => setFiles([...e.target.files])}
-          style={{
-            background: "#111827",
-            color: "#e5e7eb",
-            border: "1px solid #374151",
-            borderRadius: 8,
-            padding: 8,
-            width: "100%",
-          }}
-        />
-        <button
-          onClick={ingest}
-          style={{
-            marginTop: 12,
-            background: "#2563eb",
-            border: 0,
-            color: "#fff",
-            padding: "8px 12px",
-            borderRadius: 8,
-            cursor: "pointer",
-          }}
-        >
-          Ingest
-        </button>
-      </section>
-
-      {/* ASK */}
-      <section style={{ marginTop: 28 }}>
-        <h3>2) Ask</h3>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="e.g., Define DFA with closure properties"
-          style={{
-            width: "100%",
-            padding: 10,
-            background: "#111827",
-            color: "#e5e7eb",
-            border: "1px solid #374151",
-            borderRadius: 8,
-          }}
-        />
-        <button
-          onClick={ask}
-          disabled={loading}
-          style={{
-            marginTop: 12,
-            background: loading ? "#374151" : "#10b981",
-            border: 0,
-            color: "#fff",
-            padding: "8px 12px",
-            borderRadius: 8,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-        >
-          {loading ? "Thinking..." : "Ask"}
-        </button>
-      </section>
-
-      {/* ANSWER */}
-      {answer && (
-        <section style={{ marginTop: 28 }}>
-          <h3>Answer</h3>
-
-          <div
-            style={{
-              whiteSpace: "pre-wrap",
-              background: "#f7f7f7",
-              color: "#111",
-              padding: 14,
-              borderRadius: 10,
-              lineHeight: 1.6,
-            }}
-          >
-            {answer}
+      {/* MAIN */}
+      <main className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* LEFT */}
+        <div className="space-y-6">
+          {/* Upload */}
+          <div className="bg-white border-2 border-dashed border-gray-300 rounded-3xl p-6 space-y-4 shadow-sm">
+            <h2 className="font-semibold text-lg">📂 Panda Knowledge</h2>
+            <p className="text-sm text-gray-500">
+              Panda ko PDFs khilaao 🐼📄
+            </p>
+            <input
+              type="file"
+              multiple
+              accept="application/pdf"
+              onChange={(e) => setFiles([...e.target.files])}
+              className="w-full bg-gray-50 rounded-xl p-2 border border-gray-200 file:bg-black file:text-white file:border-0 file:px-4 file:py-2 file:rounded-full"
+            />
+            <button
+              onClick={ingest}
+              className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-full font-medium"
+            >
+              Feed Panda
+            </button>
           </div>
 
-          {/* CONTEXTS */}
-          <details style={{ marginTop: 12 }}>
-            <summary style={{ cursor: "pointer" }}>Sources</summary>
+          {/* Ask */}
+          <div className="bg-white border border-gray-200 rounded-3xl p-6 space-y-4 shadow-sm">
+            <h2 className="font-semibold text-lg">❓ Ask Panda</h2>
+            <textarea
+              rows={4}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Panda se poochho..."
+              className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-black"
+            />
+            <button
+              onClick={ask}
+              disabled={loading}
+              className={`w-full py-2 rounded-full font-medium ${
+                loading
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-pink-500 hover:bg-pink-600 text-white"
+              }`}
+            >
+              {loading ? "Panda soch raha hai..." : "Ask Panda"}
+            </button>
+          </div>
+        </div>
 
-            <div style={{ marginTop: 10 }}>
-              {contexts?.length > 0 &&
-                contexts.map((c, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      background: "#f1f5f9",
-                      color: "#111",
-                      padding: 10,
-                      borderRadius: 8,
-                      marginBottom: 10,
-                      fontSize: 14,
-                    }}
-                  >
-                    <strong>{c.source}</strong>
-                    <div style={{ opacity: 0.9, marginTop: 6 }}>
-                      {c.text?.slice(0, 500)}
-                      {c.text?.length > 500 && "..."}
-                    </div>
-                  </div>
-                ))}
+        {/* RIGHT */}
+        <div className="bg-white border border-gray-200 rounded-3xl shadow-md p-6 flex flex-col">
+          <h2 className="font-semibold text-lg mb-3">🐼 Panda Answer</h2>
 
-              {!contexts?.length && (
-                <div style={{ opacity: 0.8 }}>No sources used in this mode.</div>
-              )}
+          {!answer && (
+            <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
+              Panda ka jawab yahan aayega...
             </div>
-          </details>
-        </section>
-      )}
+          )}
+
+          {answer && (
+            <>
+              <div className="whitespace-pre-wrap text-sm leading-relaxed mb-4">
+                {answer}
+              </div>
+
+              <details className="mt-auto">
+                <summary className="cursor-pointer text-sm font-medium">
+                  Bamboo Sources 🌿
+                </summary>
+                <div className="mt-3 space-y-2 max-h-48 overflow-auto">
+                  {sources.length ? (
+                    sources.map((s, i) => (
+                      <div
+                        key={i}
+                        className="bg-gray-50 p-3 rounded-xl text-xs border border-gray-200"
+                      >
+                        <b>{s.source}</b>
+                        <p className="mt-1 opacity-80">
+                          {s.text?.slice(0, 400)}
+                          {s.text?.length > 400 && "..."}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="opacity-70">No bamboo used.</p>
+                  )}
+                </div>
+              </details>
+            </>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
