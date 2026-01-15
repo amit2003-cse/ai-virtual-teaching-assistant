@@ -1,17 +1,22 @@
-📚 Local AI Teaching Assistant (RAG-based)
+🐼 Panda AI – Local Teaching Assistant (RAG-based)
 
-A privacy-first, fully local AI Teaching Assistant built using Retrieval-Augmented Generation (RAG) that allows users to upload academic PDFs and ask syllabus-based questions.
-The system runs entirely on a local machine without any cloud dependency.
+A cute + powerful, privacy-first, fully local AI Teaching Assistant built using
+Retrieval-Augmented Generation (RAG).
+Upload your academic PDFs, ask syllabus-based questions, and get accurate answers — all running 100% locally with no cloud dependency.
 
-🚀 Why this project?
+🚀 Why This Project?
 
 Most AI chatbots:
-Depend on cloud APIs
-Do not use user-provided study material
-May generate hallucinated answers
-Raise data privacy concerns
 
-👉 This project solves all of that by building a local, document-grounded AI system suitable for education.
+☁️ Depend on cloud APIs
+
+📚 Ignore your personal study material
+
+🤥 Hallucinate answers
+
+🔓 Risk data privacy
+
+👉 Panda AI fixes this by building a local, document-grounded AI system designed for education.
 
 🧠 Key Features
 
@@ -45,6 +50,8 @@ Frontend
 React.js
 Vite
 Axios
+Tailwind CSS
+Panda AI Themed UI
 
 Backend
 Node.js
